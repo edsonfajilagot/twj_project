@@ -15,6 +15,9 @@
 		<img src="{% static 'images/rango.jpg' %}" alt="Picture of Rango" />
 		
 		<br />
+		<a href="/rango/add_category/" >Add new category</a>
+		
+		<br />
 		<h2>Top Categories</h2>
 		{% if categories %}
 			<ul>
@@ -31,7 +34,7 @@
 		{% if categories %}
 			<ul>
 				{% for category in categories %}
-				<li><a href="/rango/category/{{ category.slug }}">{{ category.name }}</a></li>	
+				<li><a href="/rango/category/{{ category.slug }}">{{ category.slug }}</a></li>	
 				{% endfor %}
 			</ul>
 		{% else %}
