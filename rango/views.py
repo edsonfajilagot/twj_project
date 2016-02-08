@@ -4,6 +4,7 @@ from rango.models import Category
 from rango.models import Page
 from rango.forms import CategoryForm
 from rango.forms import PageForm
+from rango.forms import UserForm, UserProfileForm
 
 
 def add_page(request, category_name_slug):
@@ -82,3 +83,45 @@ def about(request):
 def help(request):
 	return HttpResponse("Welcome to Rango help. <a href='/rango'>Index</a>")
 
+
+
+def register(request):
+	# Boolean value will be set to True when registration is successful
+	registered = False
+
+	if request.method == 'POST':
+		user_form = UserForm(data=request.POST)
+		profile_form = UserProfileForm(data=request.POST)
+
+		if user_form.is_valid() and profile_form.is_valid():
+			# Save the user's form data to the database
+			user = user_form.save()
+
+			# Now we hash the password
+			user.set_password(user.password)
+			user.save()
+
+			# Since we need to set the user attr ourselves, we set the commit to False
+			# This delays saving the model until we are ready to avoid integrity problems.
+			profile = profile_form.save(commit=False)
+			profile.user = user
+
+			# Did the user provide the profile picture
+			if 'picture' in request.FILES:
+				profile.picure = request.FILES['picture']
+
+			# Now save the profile
+			profile.save()
+
+			# Update the variable, as template was successful	
+			registered = True	
+
+		else:
+			print user_form.errors, profile_form.errors
+
+	else:
+		user_form = UserForm()
+		profile_form = UserProfileForm()
+
+	context_dict = {'user_form': user_form, 'profile_form': profile_form, 'registered': registered}	
+	return render(request, 'rango/register.html',context_dict)		
